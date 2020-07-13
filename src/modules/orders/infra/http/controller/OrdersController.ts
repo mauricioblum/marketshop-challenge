@@ -13,13 +13,15 @@ export default class OrdersController {
 
     const order = await findOrder.execute({ id });
 
+    if (order) {
+      delete order.customer_id;
+    }
+
     return response.json(order);
   }
 
   public async create(request: Request, response: Response): Promise<Response> {
     const { customer_id, products } = request.body;
-
-    console.log(customer_id, products);
 
     const createOrder = container.resolve(CreateOrderService);
 
@@ -28,8 +30,7 @@ export default class OrdersController {
       products,
     });
 
-    console.log(order);
-
+    delete order.customer_id;
     return response.json(order);
   }
 }

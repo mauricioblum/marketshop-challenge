@@ -35,17 +35,25 @@ class CreateOrderService {
       throw new AppError('Invalid Customer');
     }
 
-    const productIds = products.map(product => {
-      return { id: product.id };
-    });
+    const allProducts = await this.productsRepository.findAllById(products);
 
-    const allProducts = await this.productsRepository.findAllById(productIds);
+    const orderProducts = products.map(product => {
+      const findProduct = allProducts.find(item => item.id === product.id);
 
-    const orderProducts = allProducts.map(product => {
+      if (!findProduct) {
+        throw new AppError('Invalid Product');
+      }
+
+      if (product.quantity > findProduct.quantity) {
+        throw new AppError('Product Quantity is less than available');
+      }
+
+      findProduct.quantity -= product.quantity;
+
       return {
         product_id: product.id,
+        price: findProduct.price,
         quantity: product.quantity,
-        price: product.price,
       };
     });
 
@@ -53,6 +61,8 @@ class CreateOrderService {
       customer,
       products: orderProducts,
     });
+
+    await this.productsRepository.updateQuantity(allProducts);
 
     return order;
   }

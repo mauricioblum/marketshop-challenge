@@ -17,13 +17,13 @@ class Product {
   @Column()
   name: string;
 
-  @Column('decimal')
+  @Column('decimal', { precision: 5, scale: 2 })
   price: number;
 
   @Column()
   quantity: number;
 
-  @OneToMany(() => OrdersProducts, productToOrders => productToOrders.product, {
+  @OneToMany(() => OrdersProducts, order_products => order_products.product, {
     cascade: true,
   })
   order_products: OrdersProducts[];
